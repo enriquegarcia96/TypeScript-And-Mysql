@@ -1,7 +1,8 @@
 import express, { Application } from 'express';
-
+import cors from 'cors'
 
 import userRoutes from '../routes/usuario';
+import db from '../db/connection';
 
 class Server {
 
@@ -11,12 +12,41 @@ class Server {
         usuarios: '/api/usuarios'
     }
 
+
     constructor() {
         this.app = express();
         this.port = process.env.PORT || '8000';
 
+        // Metodos iniciales
+        this.dbConnection();
+        this.middlewares();
+
         // Definir mis rutas
         this.routes();
+    }
+
+    // Conectar base de datos
+    async dbConnection(){
+
+        try {
+            await db.authenticate();
+            console.log('Database online');
+        } catch (error: any) {
+            throw new Error(error);
+        }
+
+    }
+
+
+    middlewares(){
+        // Cors
+        this.app.use(cors());
+
+        // Lectura del body
+        this.app.use( express.json() );
+
+        // Carpeta Publica
+        this.app.use(express.static('public'));
     }
 
     routes(){
